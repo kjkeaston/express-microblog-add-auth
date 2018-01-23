@@ -34,12 +34,27 @@
     </div>
   </div>
 
+  <div>
+    <nav>
+      <% if(!user) { %>
+        <a href="/login">Log in</a>
+        <a href="/signup">Sign up</a>
+      <% } else { %>
+        <div>Welcome, <%= user.username %>!</div>
+        <a href="/logout">Log out</a>
+      <% } %>
+    </nav>
+  </div>
+
+
+
   <!-- page content -->
   <div class="container">
     <div class="row">
       <div class="col-md-12">
 
         <!-- new post form-->
+        <% if (user) { %>
         <form class="form-inline" id="create-post" method="POST" action="/posts">
           <div class="form-group">
             <input type="text" name="title" class="form-control" placeholder="Title" autofocus>
@@ -51,19 +66,29 @@
             <input type="submit" class="btn btn-default" value="Add Post">
           </div>
         </form>
+        <% } %>
         <br>
 
         <!-- list of posts -->
         <ul class="list-group" id="posts-list">
 
           <% for (let post of posts) { %>
+          <!-- for (let i = 0; i < posts.length; i++) -->
               <li class="list-group-item post" data-id="<%= post._id %>">
 
                 <!-- post label (title) -->
                 <a href="/posts/<%= post._id %>" class="label label-default"><%= post.title %></a>
+                <!-- if using standard for loop -> posts[i].title -->
 
                 <!-- post description -->
                 <%= post.description %>
+
+                <!-- add username to post -->
+                <% if (user !== undefined) { %>
+                  <p>By: <%= user.username %></p>
+                <% } else { %>
+                  <p>User not found!</p>
+                <% } %>
 
                 <div class="pull-right">
                   <!-- pencil icon to toggle update form -->
@@ -72,7 +97,7 @@
                   </a>
 
                   <!-- trash can icon to delete post -->
-                  <form action="/posts/<%= post._id %>" method="DELETE">
+                  <form action="/posts/<%= post._id %>?_method=DELETE" method="POST">
                     <button>
                       <span class="glyphicon glyphicon-trash"></span>
                     </button>
