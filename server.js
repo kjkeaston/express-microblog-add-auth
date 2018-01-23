@@ -100,11 +100,14 @@ app.get("/posts/:id", function(req, res) {
 });
 
 app.post("/posts", function(req, res) {
+  if (!req.user) {
+    res.redirect("/");
+  }
   var newPost = new Post(req.body);
-  var user = req.user
+  newPost.user = req.user._id;
+  // var user = req.user
   
   // save new post in db
-  if (user) {
     newPost.save(function (err) {
       if (err) {
         res.status(500).json({ error: err.message, });
@@ -114,9 +117,6 @@ app.post("/posts", function(req, res) {
         res.redirect("/");
       }
     });
-  } else {
-    res.redirect("/");
-  }
 });
 
 // update post
@@ -128,6 +128,10 @@ app.put("/posts/:id", function (req, res) {
   Post.findOne({ _id: postId, }, function (err, foundPost) {
     if (err) {
       res.status(500).json({ error: err.message, });
+    }
+    else if (foundPost.user && (foundPost.user != req.user._id)) {
+
+    }
     } else {
       // update the posts's attributes
       foundPost.title = req.body.title || foundPost.title;
